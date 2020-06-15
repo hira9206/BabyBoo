@@ -29,5 +29,8 @@ db.once('open', () => console.log('Connected to Mongoose'))
 app.use('/', indexRouter)
 app.use('/clothes', clothesRouter)
 
+app.get('/', function(req, res){
+    res.render("clothes/new");
+});
 
 app.listen(process.env.PORT || 3000)
