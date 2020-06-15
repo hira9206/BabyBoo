@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
     }
     try {
       const clothes = await Clothes.find(searchOptions)
-      res.render('clothes/index', { 
+      res.render('Clothes/index', { 
           clothes : clothes, 
           searchOptions: req.query
         })
@@ -21,7 +21,7 @@ router.get('/', async (req, res) => {
 
 // New Clothes 
 router.get('/new', (req, res) => {
-    res.render('clothes/new', { clothes: new Clothes() })
+    res.render('Clothes/new', { clothes: new Clothes() })
 })
 
 // Create Clothes 
@@ -32,9 +32,9 @@ router.post('/', async (req, res) => {
     try{
         const newClothes = await clothes.save()
         //res.redirect('clothes/${newClothes.id}')
-        res.redirect('clothes')
+        res.redirect('Clothes')
     } catch {
-        res.render('clothes/new', {
+        res.render('Clothes/new', {
             clothes: clothes,
             errorMessage: 'Error creating Clothes'
         })
