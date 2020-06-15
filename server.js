@@ -8,7 +8,7 @@ const expressLayouts = require('express-ejs-layouts')
 const bodyParser = require('body-parser')
 
 const indexRouter = require('./routes/index')
-const clothesRouter = require('./routes/clothes')
+const clothesRouter = require('./routes/Clothes')
 
 app.set('view engine', 'ejs')
 app.set('views', __dirname + '/views')
