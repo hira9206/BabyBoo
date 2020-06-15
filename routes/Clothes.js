@@ -1,5 +1,5 @@
 const express = require('express')
-const Clothes = require('../models/clothes')
+const Clothes = require('../models/Clothes')
 const router = express.Router()
 
 // All Clothes 
