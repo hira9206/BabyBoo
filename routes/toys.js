@@ -1,17 +1,8 @@
 const express = require('express')
 const router = express.Router()
-const multer = require('multer')
-const path = require('path')
-const fs = require('fs')
 const Toys = require('../models/toys')
-const uploadPath = path.join('public', Toys.coverImageBasePath)
 const imageMimeTypes = ['image/jpeg', 'image/png', 'image/gif']
-const upload = multer({
-  dest: uploadPath,
-  fileFilter: (req, file, callback) => {
-    callback(null, imageMimeTypes.includes(file.mimetype))
-  }
-})
+
 
 // All Toys Route
 router.get('/', async (req, res) => {
@@ -36,33 +27,23 @@ router.get('/new', async (req, res) => {
 })
 
 // Create Toys Route
-router.post('/', upload.single('cover'), async (req, res) => {
-  const fileName = req.file != null ? req.file.filename : null
+router.post('/', async (req, res) => {
   const toys = new Toys({
     name: req.body.name,
     availability: req.body.availability,
     price: req.body.price,
-    coverImageName: fileName,
     description: req.body.description
   })
+  saveCover(toys, req.body.cover)
 
   try {
     const newToys = await toys.save()
     // res.redirect(`books/${newBook.id}`)
     res.redirect(`toys`)
   } catch {
-    if (toys.coverImageName != null) {
-      removeToysCover(toys.coverImageName)
-    }
     renderNewPage(res, toys, true)
   }
 })
-
-function removeToysCover(fileName) {
-  fs.unlink(path.join(uploadPath, fileName), err => {
-    if (err) console.error(err)
-  })
-}
 
 async function renderNewPage(res, toys, hasError = false) {
   try {
@@ -73,6 +54,15 @@ async function renderNewPage(res, toys, hasError = false) {
     res.render('toys/new', params)
   } catch {
     res.redirect('/toys')
+  }
+}
+
+function saveCover(toys, coverEncoded) {
+  if (coverEncoded == null) return
+  const cover = JSON.parse(coverEncoded)
+  if (cover != null && imageMimeTypes.includes(cover.type)) {
+    toys.coverImage = new Buffer.from(cover.data, 'base64')
+    toys.coverImageType = cover.type
   }
 }
 
