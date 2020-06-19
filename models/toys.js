@@ -4,18 +4,18 @@ const path = require('path')
 const coverImageBasePath = 'uploads/images'
 
 const toysSchema = new mongoose.Schema({
-  title: {
+  name: {
     type: String,
     required: true
   },
   description: {
     type: String
   },
-  publishDate: {
-    type: Date,
+  availability: {
+    type: Number,
     required: true
   },
-  pageCount: {
+  price: {
     type: Number,
     required: true
   },
@@ -27,11 +27,6 @@ const toysSchema = new mongoose.Schema({
   coverImageName: {
     type: String,
     required: true
-  },
-  clothes: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: 'Clothes'
   }
 })
 

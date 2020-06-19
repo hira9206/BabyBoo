@@ -4,7 +4,6 @@ const multer = require('multer')
 const path = require('path')
 const fs = require('fs')
 const Toys = require('../models/toys')
-const Clothes = require('../models/Clothes')
 const uploadPath = path.join('public', Toys.coverImageBasePath)
 const imageMimeTypes = ['image/jpeg', 'image/png', 'image/gif']
 const upload = multer({
@@ -17,14 +16,8 @@ const upload = multer({
 // All Toys Route
 router.get('/', async (req, res) => {
   let query = Toys.find()
-  if (req.query.title != null && req.query.title != '') {
-    query = query.regex('title', new RegExp(req.query.title, 'i'))
-  }
-  if (req.query.publishedBefore != null && req.query.publishedBefore != '') {
-    query = query.lte('publishDate', req.query.publishedBefore)
-  }
-  if (req.query.publishedAfter != null && req.query.publishedAfter != '') {
-    query = query.gte('publishDate', req.query.publishedAfter)
+  if (req.query.name != null && req.query.name != '') {
+    query = query.regex('name', new RegExp(req.query.name, 'i'))
   }
   try {
     const toys = await query.exec()
@@ -46,10 +39,9 @@ router.get('/new', async (req, res) => {
 router.post('/', upload.single('cover'), async (req, res) => {
   const fileName = req.file != null ? req.file.filename : null
   const toys = new Toys({
-    title: req.body.title,
-    clothes: req.body.clothes,
-    publishDate: new Date(req.body.publishDate),
-    pageCount: req.body.pageCount,
+    name: req.body.name,
+    availability: req.body.availability,
+    price: req.body.price,
     coverImageName: fileName,
     description: req.body.description
   })
@@ -74,9 +66,7 @@ function removeToysCover(fileName) {
 
 async function renderNewPage(res, toys, hasError = false) {
   try {
-    const clothes = await Clothes.find({})
     const params = {
-      clothes: clothes,
       toys: toys
     }
     if (hasError) params.errorMessage = 'Error Creating Toy'
