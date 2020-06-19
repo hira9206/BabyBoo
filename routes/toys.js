@@ -4,7 +4,8 @@ const multer = require('multer')
 const path = require('path')
 const fs = require('fs')
 const Toys = require('../models/toys')
-const uploadPath = path.join('public', Toys.imageBasePath)
+const Clothes = require('../models/Clothes')
+const uploadPath = path.join('public', Toys.coverImageBasePath)
 const imageMimeTypes = ['image/jpeg', 'image/png', 'image/gif']
 const upload = multer({
   dest: uploadPath,
@@ -13,51 +14,59 @@ const upload = multer({
   }
 })
 
-// All Toys
+// All Toys Route
 router.get('/', async (req, res) => {
-    let query = Toys.find()
+  let query = Toys.find()
   if (req.query.title != null && req.query.title != '') {
-    query = query.regex('name', new RegExp(req.query.title, 'i'))
+    query = query.regex('title', new RegExp(req.query.title, 'i'))
+  }
+  if (req.query.publishedBefore != null && req.query.publishedBefore != '') {
+    query = query.lte('publishDate', req.query.publishedBefore)
+  }
+  if (req.query.publishedAfter != null && req.query.publishedAfter != '') {
+    query = query.gte('publishDate', req.query.publishedAfter)
   }
   try {
     const toys = await query.exec()
     res.render('toys/index', {
       toys: toys,
       searchOptions: req.query
-      })
-    } catch {
-      res.redirect('/')
-    }
+    })
+  } catch {
+    res.redirect('/')
+  }
 })
 
-// New Toys 
+// New Toys Route
 router.get('/new', async (req, res) => {
-    renderNewPage(res, new Toys())
+  renderNewPage(res, new Toys())
 })
 
-// Create Toys 
-router.post('/', upload.single('image'), async (req, res) => {
+// Create Toys Route
+router.post('/', upload.single('cover'), async (req, res) => {
   const fileName = req.file != null ? req.file.filename : null
   const toys = new Toys({
-    name: req.body.name,
-    description: req.body.description,
-    availability: req.body.availability,
-    imageName: fileName,
+    title: req.body.title,
+    clothes: req.body.clothes,
+    publishDate: new Date(req.body.publishDate),
+    pageCount: req.body.pageCount,
+    coverImageName: fileName,
+    description: req.body.description
   })
 
   try {
     const newToys = await toys.save()
-    // res.redirect(`toys/${newToys.id}`)
+    // res.redirect(`books/${newBook.id}`)
     res.redirect(`toys`)
   } catch {
-    if (toys.imageName != null) {
-      removeImage(toys.imageName)
+    if (toys.coverImageName != null) {
+      removeToysCover(toys.coverImageName)
     }
-    renderNewPage(res, book, true)
+    renderNewPage(res, toys, true)
   }
 })
 
-function removeImage(fileName) {
+function removeToysCover(fileName) {
   fs.unlink(path.join(uploadPath, fileName), err => {
     if (err) console.error(err)
   })
@@ -65,8 +74,10 @@ function removeImage(fileName) {
 
 async function renderNewPage(res, toys, hasError = false) {
   try {
+    const clothes = await Clothes.find({})
     const params = {
-      book: book
+      clothes: clothes,
+      toys: toys
     }
     if (hasError) params.errorMessage = 'Error Creating Toy'
     res.render('toys/new', params)
@@ -75,4 +86,4 @@ async function renderNewPage(res, toys, hasError = false) {
   }
 }
 
-module.exports = router
+module.exports = router 

@@ -1,36 +1,45 @@
 const mongoose = require('mongoose')
 const path = require('path')
 
-const imageBasePath = 'uploads/images'
+const coverImageBasePath = 'uploads/images'
 
 const toysSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true
-    },
-    description: {
-        type: String
-    },
-    availability: {
-        type: Number,
-        required: true
-    },
-    createdAT: {
-        type: Date,
-        required: true,
-        default: Date.now
-    },
-    imageName: {
-        type: String,
-        required: true,
-    },
+  title: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String
+  },
+  publishDate: {
+    type: Date,
+    required: true
+  },
+  pageCount: {
+    type: Number,
+    required: true
+  },
+  createdAt: {
+    type: Date,
+    required: true,
+    default: Date.now
+  },
+  coverImageName: {
+    type: String,
+    required: true
+  },
+  clothes: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'Clothes'
+  }
 })
 
-toysSchema.virtual('imagePath').get(function() {
-    if (this.imageName != null) {
-      return path.join('/', imageBasePath, this.imageName)
-    }
-  })
+toysSchema.virtual('coverImagePath').get(function() {
+  if (this.coverImageName != null) {
+    return path.join('/', coverImageBasePath, this.coverImageName)
+  }
+})
 
 module.exports = mongoose.model('Toys', toysSchema)
-module.exports.imageBasePath = imageBasePath
+module.exports.coverImageBasePath = coverImageBasePath
